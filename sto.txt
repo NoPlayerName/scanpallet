@@ -1,0 +1,7 @@
+<div class="container">
+ <h2>STOCK OPNAME</h2>
+  <form action="sto.php">
+    <input type="submit" value="Form Stock Opname" class="btn-primary" style=" padding: 15px 32px;"/>
+ </form>
+ <p>
+ </div>
