@@ -16,11 +16,40 @@
 // }
 
 
+// $mysqlservername = "localhost";
+// $mysqlusername = "aicc-db";
+// $mysqlpassword = "C0mbr0P3d45!";
+// $mysqldbname = "palletdb";
+// $mysqlconn = new mysqli($mysqlservername, $mysqlusername, $mysqlpassword, $mysqldbname);
+// $serverName = "GPG0100\SQLEXPRESS,1433";
+// $connectionOptions = array(
+//      "Database" => "fg",
+//      "Uid"      => "sa",
+//      "PWD"      => "C0mbr0P3d45!",
+//      "encrypt"  => false,
+//      "TrustServerCertificate" => true
+// );
+
+// $conn = sqlsrv_connect($serverName, $connectionOptions);
+// if (!$conn) {
+//      die("koneksi gagal:" . print_r(sqlsrv_errors(), true));
+// }
+
+// === Koneksi ke MySQL ===
 $mysqlservername = "localhost";
-$mysqlusername = "aicc-db";
-$mysqlpassword = "C0mbr0P3d45!";
-$mysqldbname = "palletdb";
+$mysqlusername   = "aicc-fgms";
+$mysqlpassword   = "C0mbr0P3d45!";
+$mysqldbname     = "aicc-ppic";
+
 $mysqlconn = new mysqli($mysqlservername, $mysqlusername, $mysqlpassword, $mysqldbname);
+
+if ($mysqlconn->connect_error) {
+     die("Koneksi MySQL gagal: " . $mysqlconn->connect_error);
+}
+// echo "Koneksi MySQL berhasil<br>";
+
+
+// === Koneksi ke SQL Server ===
 $serverName = "GPG0100\SQLEXPRESS,1433";
 $connectionOptions = array(
      "Database" => "fg",
@@ -31,6 +60,8 @@ $connectionOptions = array(
 );
 
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
 if (!$conn) {
-     die("koneksi gagal:" . print_r(sqlsrv_errors(), true));
+     die("Koneksi SQL Server gagal:" . print_r(sqlsrv_errors(), true));
 }
+// echo "Koneksi SQL Server berhasil<br>";
