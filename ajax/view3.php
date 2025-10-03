@@ -94,7 +94,7 @@ if (isset($_POST['nopall'])) {
 	}
 	echo $kop;
 	
-	$querya="INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',NOW(),'o'),('MC075509','DIFF CASE RH','$snp2','$nopall',NOW(),'o','$norak')";
+	$querya="INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o'),('MC075509','DIFF CASE RH','$snp2','$nopall',getdate(),'o','$norak')";
 	echo "<br>".$querya;
 } */
 if (isset($_POST['lr'])) {
@@ -141,7 +141,7 @@ if (isset($_POST['lr'])) {
 		$msgmy = "<h2 style='color:red;'>No Pallet tidak bisa masuk jika belum transaksi keluar!</h2>";
 		echo $msgmy;
 	} else if ($hasil == 9 && $partnoa == "MC075508") {
-		$querya = "INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',NOW(),'o','$norak'),('MC075509','DIFF CASE RH','$snp2','$nopall',NOW(),'o','$norak')";
+		$querya = "INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak'),('MC075509','DIFF CASE RH','$snp2','$nopall',getdate(),'o','$norak')";
 		$stmta = sqlsrv_query($conn, $querya);
 		/* $queryr="update tblrak set ket = 0 where norak = '$norak'";
 		$stmtr = sqlsrv_query( $conn, $queryr);
@@ -155,7 +155,7 @@ if (isset($_POST['lr'])) {
 	} else if ($hasil == 9 && $partnoa !== "MC075508") {
 		$querya = "If Not Exists(select * from viewmasuk where idpallet='$nopall')
 					Begin
-					INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',NOW(),'o','$norak')
+					INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak')
 				End";
 		$stmta = sqlsrv_query($conn, $querya);
 		/* $queryr="update tblrak set ket = 0 where norak = '$norak'";
@@ -168,7 +168,7 @@ if (isset($_POST['lr'])) {
 		$msgmy = "<h2 style='color:red;'>No Pallet tidak ditemukan..Pastikan pallet sudah masuk di Pallet Navigation!</h2>";
 		echo $msgmy;
 	} else if ($rowcount !== 0 && $partnoa == "MC075508") {
-		$querya = "INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',NOW(),'o','$norak'),('MC075509','DIFF CASE RH','$snp2','$nopall',NOW(),'o','$norak')";
+		$querya = "INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak'),('MC075509','DIFF CASE RH','$snp2','$nopall',getdate(),'o','$norak')";
 		$stmta = sqlsrv_query($conn, $querya);
 		/* $queryr="update tblrak set ket = 0 where norak = '$norak'";
 		$stmtr = sqlsrv_query( $conn, $queryr);
@@ -183,7 +183,7 @@ if (isset($_POST['lr'])) {
 	} else if ($rowcount !== 0 && $partnoa !== "MC075508") {
 		$querya = "If Not Exists(select * from viewmasuk where idpallet='$nopall')
 					Begin
-					INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',NOW(),'o','$norak')
+					INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak')
 				End";
 		$stmta = sqlsrv_query($conn, $querya);
 		/* $queryr="update tblrak set ket = 0 where norak = '$norak'";
@@ -208,25 +208,25 @@ if (isset($_POST['part'])) {
 	$nopall = $_POST['pall'];
 	$hasil = substr("$nopall", 0, 1);
 
-	$mysql = "SELECT * FROM tb_pallet WHERE pallet_no='$nopall' AND `status`=1 AND is_active=1";
+	$mysql = "SELECT * FROM cekpallet WHERE nopallet='$nopall'";
 	$myresult = $mysqlconn->query($mysql);
 	$rowcount = mysqli_num_rows($myresult);
 
-	$sqla = "SELECT pallet_no FROM tb_stock_in WHERE pallet_no='$nopall' AND `status` =1";
-	$resulta = $mysqlconn->query($sqla);
-	$rowsa = mysqli_num_rows($resulta);
+	$sqla = "select idpallet from viewmasuk where idpallet='$nopall'";
+	$resulta = sqlsrv_query($conn, $sqla);
+	$rowsa = sqlsrv_has_rows($resulta);
 
 
-	$sql = "SELECT p.part_no, v.part_name, p.std_packing from tb_product p left join v_products v on v.part_no = p.part_no where p.part_no = '$partnoa'";
-	$result = $mysqlconn->query($sql);
+	$sql = "SELECT partno, partname, stdpacking, ket, kodeproduk from tblproduk where partno = '$partnoa'";
+	$result = sqlsrv_query($conn, $sql);
 	//$resulta = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)
 
-	while ($row = $result->fetch_assoc()) {
-		$partno2 = $row['part_no'];
-		$partname2 = $row['part_name'];
-		$snp2 = $row['std_packing'];
-		// $kett2 = $row['ket'];
-		// $kop = $row['kodeproduk'];
+	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+		$partno2 = $row['partno'];
+		$partname2 = $row['partname'];
+		$snp2 = $row['stdpacking'];
+		$kett2 = $row['ket'];
+		$kop = $row['kodeproduk'];
 
 		echo "<body onload='form1.partno.focus()';scroll()>";
 	}
@@ -238,15 +238,15 @@ if (isset($_POST['part'])) {
 	}/* else if (strlen($nopall) != 4 ) {
 		$msg3="<h2 style='color:red;'>No Pallet Salah!</h2>";
 		echo $msg3;
-	} */ else if ($rowsa > 0) {
+	} */ else if ($rowsa === true) {
 		$msgmy = "<h2 style='color:red;'>No Pallet tidak bisa masuk jika belum transaksi keluar!</h2>";
 		echo $msgmy;
 	} else if ($hasil == 9 && $partnoa == "MC075508") {
-		$querya = "INSERT INTO tb_stock_in (part_no,part_name,pallet_no,qty,rack_no,`status`,created_at) VALUES('$partno2','$partname2','$nopall','$snp2','$norak', 1 ,NOW()),('MC075509','DIFF CASE RH','$nopall','$snp2','$norak', 1,NOW())";
-		$stmta = $mysqlconn->query($querya);
-		$queryr = "UPDATE tb_rack set `status` = 1, part_no = '$partno2', product_code = '$partname2+DIFF CASE M002'
-				 where rack_no = '$norak'";
-		$stmtr = $mysqlconn->query($queryr);
+		$querya = "INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak'),('MC075509','DIFF CASE RH','$snp2','$nopall',getdate(),'o','$norak')";
+		$stmta = sqlsrv_query($conn, $querya);
+		$queryr = "update tblrak set ket = 0, partno = '$partno2', kodeproduk = '$kop+DIFF CASE M002'
+				 where norak = '$norak'";
+		$stmtr = sqlsrv_query($conn, $queryr);
 		/* $queryr2="update tblrakopt set ket = 0 where norak = '$norak'";
 		$stmtr2 = sqlsrv_query( $conn, $queryr2); */
 		$msgs = "<h3 style='color:blue;'>Data Berhasil Di Simpan</h3>";
@@ -255,19 +255,14 @@ if (isset($_POST['part'])) {
 		//echo $querya;
 
 	} else if ($hasil == 9 && $partnoa !== "MC075508") {
-		$querya = "INSERT INTO tb_stock_in (part_no, part_name, pallet_no, qty, rack_no, `status`, created_at)
-				SELECT '$partno2', '$partname2', '$nopall', '$snp2', '$norak', 1, NOW()
-				FROM DUAL
-				WHERE NOT EXISTS (
-					SELECT 1 
-					FROM tb_stock_in 
-					WHERE pallet_no = '$nopall' 
-					AND `status` = 1
-				)";
-		$stmta = $mysqlconn->query($querya);
-		$queryr = "update tb_rack set `status` = 1, part_no = '$partno2', product_code = (select part_name from v_products where part_no = '$partno2')
-				 where rack_no = '$norak'";
-		$stmtr = $mysqlconn->query($queryr);
+		$querya = "If Not Exists(select * from viewmasuk where idpallet='$nopall')
+					Begin
+					INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak')
+				End";
+		$stmta = sqlsrv_query($conn, $querya);
+		$queryr = "update tblrak set ket = 0, partno = '$partno2', kodeproduk = (select kodeproduk from tblproduk where partno = '$partno2')
+				 where norak = '$norak'";
+		$stmtr = sqlsrv_query($conn, $queryr);
 		/* $queryr2="update tblrakopt set ket = 0 where norak = '$norak'";
 		$stmtr2 = sqlsrv_query( $conn, $queryr2); */
 		$msgs = "<h3 style='color:blue;'>Data Berhasil Di Simpan</h3>";
@@ -276,33 +271,28 @@ if (isset($_POST['part'])) {
 		$msgmy = "<h2 style='color:red;'>No Pallet tidak ditemukan..Pastikan pallet sudah masuk di Pallet Navigation!</h2>";
 		echo $msgmy;
 	} else if ($rowcount !== 0 && $partnoa == "MC075508") {
-		$querya = "INSERT INTO tb_stock_in (part_no,part_name,pallet_no,qty,rack_no,`status`,created_at) VALUES('$partno2','$partname2','$nopall','$snp2','$norak', 1 ,NOW()),('MC075509','DIFF CASE RH','$nopall','$snp2','$norak', 1,NOW())";
-		$stmta = $mysqlconn->query($querya);
-		$queryr = "update tb_rack set `status` = 1, part_no = '$partno2', product_code = '$partname2+DIFF CASE M002'
-				 where rack_no = '$norak'";
-		$stmtr = $mysqlconn->query($queryr);
+		$querya = "INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak'),('MC075509','DIFF CASE RH','$snp2','$nopall',getdate(),'o','$norak')";
+		$stmta = sqlsrv_query($conn, $querya);
+		$queryr = "update tblrak set ket = 0, partno = '$partno2', kodeproduk = '$kop+DIFF CASE M002'
+				 where norak = '$norak'";
+		$stmtr = sqlsrv_query($conn, $queryr);
 
-		$mysql = "UPDATE tb_pallet set product = '$partname2+DIFF CASE M002' WHERE pallet_no='$nopall' and is_active=1";
+		$mysql = "UPDATE pallet set produk = '$kop+DIFF CASE M002' WHERE nopallet='$nopall' and aktif=1";
 		$mysqlconn->query($mysql);
 		$msgs = "<h3 style='color:blue;'>Data Berhasil Di Simpan</h3>";
 		echo $msgs;
 		/* echo "<br \>"; */
 	} else if ($rowcount !== 0 && $partnoa !== "MC075508") {
-		$querya = "INSERT INTO tb_stock_in (part_no, part_name, pallet_no, qty, rack_no, `status`, created_at)
-				SELECT '$partno2', '$partname2', '$nopall', '$snp2', '$norak', 1, NOW()
-				FROM DUAL
-				WHERE NOT EXISTS (
-					SELECT 1 
-					FROM tb_stock_in 
-					WHERE pallet_no = '$nopall' 
-					AND `status` = 1
-				)";
-		$stmta = $mysqlconn->query($querya);
-		$queryr = "UPDATE tb_rack set `status` = 1, part_no = '$partno2', product_code = (select part_name from v_products where part_no = '$partno2')
+		$querya = "If Not Exists(select * from viewmasuk where idpallet='$nopall')
+					Begin
+					INSERT INTO tblmasuk (partno,partname,qty,idpallet,createdatetime,mark,norak) VALUES('$partno2','$partname2','$snp2','$nopall',getdate(),'o','$norak')
+				End";
+		$stmta = sqlsrv_query($conn, $querya);
+		$queryr = "update tblrak set ket = 0, partno = '$partno2', kodeproduk = (select kodeproduk from tblproduk where partno = '$partno2')
 				 where norak = '$norak'";
-		$stmtr =  $mysqlconn->query($queryr);
+		$stmtr = sqlsrv_query($conn, $queryr);
 
-		$mysql = "UPDATE tb_pallet set product = '$partname2' WHERE pallet_no='$nopall' and is_active=1";
+		$mysql = "UPDATE pallet set produk = '$kop' WHERE nopallet='$nopall' and aktif=1";
 		$mysqlconn->query($mysql);
 		$msgs = "<h3 style='color:blue;'>Data Berhasil Di Simpan</h3>";
 		echo $msgs;

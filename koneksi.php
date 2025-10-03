@@ -50,7 +50,7 @@ if ($mysqlconn->connect_error) {
 
 
 // === Koneksi ke SQL Server ===
-$serverName = "GPG0100\SQLEXPRESS,1433";
+$serverName = "GPG0217\SQLEXPRESS,1433";
 $connectionOptions = array(
      "Database" => "fg",
      "Uid"      => "sa",
