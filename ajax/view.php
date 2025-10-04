@@ -311,18 +311,22 @@ if (isset($_POST['part'])) {
 
 if (isset($_POST['partnocari'])) {
 	$partnocari = $_POST['partnocari'];
-	$sql = "SELECT kodeproduk from tblproduk where partno = '$partnocari'";
-	$result = sqlsrv_query($conn, $sql);
+	// $sql = "SELECT kodeproduk from tblproduk where partno = '$partnocari'";
+	// $result = sqlsrv_query($conn, $sql);
+	$query = "SELECT p.part_no, v.part_name 
+				FROM tb_product p 
+				LEFT JOIN v_products v ON v.part_no = p.part_no
+				WHERE p.part_no = '$partnocari' AND p.is_active = 1";
 	//$resulta = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)
-
-	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
-		$kp = $row['kodeproduk'];
+	$result =  $mysqlconn->query($query);
+	while ($row = $result->fetch_assoc()) {
+		$kp = $row['part_name'];
 	}
 
-	$query = "truncate table tblcarirak";
-	$stmt = sqlsrv_query($conn, $query);
-	$query2 = "insert into tblcarirak (partno) values ('$partnocari')";
-	$stmt2 = sqlsrv_query($conn, $query2);
+	$query = "TRUNCATE TABLE tb_search_rack";
+	$stmt = $mysqlconn->query($query);
+	$query2 = "INSERT INTO tb_search_rack (part_no) values ('$partnocari')";
+	$stmt2 = $mysqlconn->query($query2);
 	$msg = "<h3 style='color:blue;'>$kp</h3>";
 	echo $msg;
 }
