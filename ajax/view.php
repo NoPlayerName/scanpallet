@@ -445,16 +445,18 @@ if (isset($_POST['pallmp'])) {
 	$nopall = $_POST['pallmp'];
 	$norak = $_POST['rak'];
 
-	$sql = "select tblproduk.partno, tblproduk.kodeproduk
-			from tblmasuk
-			inner join tblproduk on tblproduk.partno = tblmasuk.partno
-			where idpallet = '$nopall' and mark = 'o'";
-	$result = sqlsrv_query($conn, $sql);
+	// $sql = "select tblproduk.partno, tblproduk.kodeproduk
+	// 		from tblmasuk
+	// 		inner join tblproduk on tblproduk.partno = tblmasuk.partno
+	// 		where idpallet = '$nopall' and mark = 'o'";
+	// $result = sqlsrv_query($conn, $sql);
+	$query = "SELECT part_no, part_name FROM tb_stock_in WHERE pallet_no = '$nopall' and `status` = 1";
+	$result = $mysqlconn->query($query);
 	//$resulta = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)
 
-	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
-		$partno = $row['partno'];
-		$kodeproduk = $row['kodeproduk'];
+	while ($row = $result->fetch_assoc()) {
+		$partno = $row['part_no'];
+		$kodeproduk = $row['part_name'];
 	}
 
 	if ($partno == 'MC075509') {
@@ -464,10 +466,10 @@ if (isset($_POST['pallmp'])) {
 	}
 
 
-	$query1 = "update tblmasuk set norak = '$norak' where idpallet = '$nopall' and mark = 'o'";
-	$stmt1 = sqlsrv_query($conn, $query1);
-	$query2 = "update tblrak set partno = '$partno', kodeproduk = '$kp', ket = '0' where norak = '$norak'";
-	$stmt2 = sqlsrv_query($conn, $query2);
+	$query1 = "UPDATE tb_stock_in SET rack_no = '$norak' WHERE pallet_no = '$nopall' and `status` = 1";
+	$stmt1 = $mysqlconn->query($query1);
+	$query2 = "UPDATE tb_rack set part_no = '$partno', product_code = '$kp', `status` = 1 where rack_no = '$norak'";
+	$stmt2 = $mysqlconn->query($query2);
 
 	$msgc = "<h3 style='color:blue;'>Data Berhasil Disimpan</h3>";
 	echo $msgc;
