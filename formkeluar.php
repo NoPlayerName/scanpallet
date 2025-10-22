@@ -28,8 +28,8 @@ if (isset($_POST['nopall'])) {
                                 order by t.part_name asc";
 	$result2 = $mysqlconn->query($sql2);
 	//$resulta = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)
-	$sql3 = "SELECT initial from v_customer where id='$_POST[opt]'";
-	$result3 = $mysqlconn->query($sql3);
+	$sql3 = "SELECT initial, customer_name from tb_customer where id='$_POST[opt]'";
+	$result3 = $mysqlconnM->query($sql3);
 	while ($row = $result->fetch_assoc()) {
 		$nopalla = $row['pallet_no'];
 		$partnoa = $row['part_no'];
@@ -42,6 +42,7 @@ if (isset($_POST['nopall'])) {
 	}
 	while ($row3 = $result3->fetch_assoc()) {
 		$sin = $row3['initial'];
+		$custName = $row3['customer_name'];
 	}
 }
 
@@ -57,7 +58,7 @@ if (isset($_POST['nopall'])) { //check if form was submitted
 		echo $msgk;
 	} else if ($partnoa == "MC075509") {
 		try {
-			$queryb = "INSERT INTO tb_stock_out (part_no,part_name,pallet_no,qty,rack_no,customer, created_at) VALUES('MC075508','DIFF CASE M001','$nopalla',30,'$norak','$_POST[cust]',NOW())";
+			$queryb = "INSERT INTO tb_stock_out (part_no,part_name,pallet_no,qty,rack_no,customer, created_at) VALUES('MC075508','DIFF CASE M001','$nopalla',30,'$norak','$custName',NOW())";
 			$stmtb = $mysqlconn->query($queryb);
 			$sqls = "UPDATE tb_stock_in set `status`=0 where pallet_no='$nopalla' and part_no='MC075508' and `status`=1";
 			$rests = $mysqlconn->query($sqls);
@@ -66,7 +67,7 @@ if (isset($_POST['nopall'])) { //check if form was submitted
 
 			$sqla = "UPDATE tb_stock_in set `status`=0 where pallet_no='$nopalla' and part_no='$partnoa' and `status`=1";
 			$resta = $mysqlconn->query($sqla);
-			$query = "INSERT INTO tb_stock_out (part_no,part_name,pallet_no,qty,rack_no,customer, created_at) VALUES('$partnoa','$partnamea','$nopalla','$stdpacka','$norak','$_POST[cust]',NOW())";
+			$query = "INSERT INTO tb_stock_out (part_no,part_name,pallet_no,qty,rack_no,customer, created_at) VALUES('$partnoa','$partnamea','$nopalla','$stdpacka','$norak','$custName',NOW())";
 			$stmt = $mysqlconn->query($query);
 			// $sql1 = "update transaksi set tglkeluar = GETDATE(), produkkeluar = '$kop', keluar = '$stdpacka', balance = 0, cust = '$sin' WHERE idpallet = '$nopalla' and balance = 1";
 			// $restt1 = sqlsrv_query($conn, $sql1);
@@ -99,7 +100,7 @@ if (isset($_POST['nopall'])) { //check if form was submitted
 			$sqla = "UPDATE tb_stock_in set `status`=0 where pallet_no='$nopalla' and part_no='$partnoa' and `status`=1";
 			$resta = $mysqlconn->query($sqla);
 			$query = "INSERT INTO tb_stock_out (part_no, part_name, pallet_no, qty, rack_no, customer, created_at)
-						SELECT '$partnoa', '$partnamea', '$nopalla', '$stdpacka', '$norak', '{$_POST['cust']}', NOW()
+						SELECT '$partnoa', '$partnamea', '$nopalla', '$stdpacka', '$norak', '$custName', NOW()
 						WHERE NOT EXISTS (
 							SELECT 1 
 							FROM tb_stock_out 
@@ -221,8 +222,8 @@ if (isset($_POST['nopall'])) { //check if form was submitted
 					<select name="cust" id="cust" style="font-size:15pt;height:35px;width:100%" onchange="myFunction()">
 						<option value="" disabled="disabled" selected="true"></option>
 						<?php
-						$sql = "SELECT id, customer_name from v_customer order by customer_name asc";
-						$result = $mysqlconn->query($sql);
+						$sql = "SELECT id, customer_name from tb_customer order by customer_name asc";
+						$result = $mysqlconnM->query($sql);
 						//$resulta = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)
 
 						while ($row = $result->fetch_assoc()) { ?>

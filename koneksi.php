@@ -48,6 +48,18 @@ if ($mysqlconn->connect_error) {
 }
 // echo "Koneksi MySQL berhasil<br>";
 
+// === Koneksi ke MySQL ===
+$mysqlservernameM = "localhost";
+$mysqlusernameM   = "aicc-fgms";
+$mysqlpasswordM   = "C0mbr0P3d45!";
+$mysqldbnameM     = "aicc-master";
+
+$mysqlconnM = new mysqli($mysqlservernameM, $mysqlusernameM, $mysqlpasswordM, $mysqldbnameM);
+
+if ($mysqlconnM->connect_error) {
+     die("Koneksi MySQL gagal: " . $mysqlconnM->connect_error);
+}
+
 
 // === Koneksi ke SQL Server ===
 $serverName = "GPG0217\SQLEXPRESS,1433";
