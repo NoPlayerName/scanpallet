@@ -309,7 +309,7 @@ if (isset($_POST['part'])) {
 				)";
 		$stmta = $mysqlconn->query($querya);
 		$queryr = "UPDATE tb_rack set `status` = 1, part_no = '$partno2', product_code = (select part_name from v_products where part_no = '$partno2')
-				 where norak = '$norak'";
+				 where rack_no = '$norak'";
 		$stmtr =  $mysqlconn->query($queryr);
 
 		$mysql = "UPDATE tb_pallet set product = '$partname2' WHERE pallet_no='$nopall' and is_active=1";
