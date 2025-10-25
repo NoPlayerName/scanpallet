@@ -36,9 +36,9 @@
 // }
 
 // === Koneksi ke MySQL ===
-$mysqlservername = "localhost";
-$mysqlusername   = "aicc-fgms";
-$mysqlpassword   = "C0mbr0P3d45!";
+$mysqlservername = "10.63.0.3";
+$mysqlusername   = "aicc-db";
+$mysqlpassword   = "31041CcP@ssw0rd#";
 $mysqldbname     = "aicc-ppic";
 
 $mysqlconn = new mysqli($mysqlservername, $mysqlusername, $mysqlpassword, $mysqldbname);
@@ -48,20 +48,32 @@ if ($mysqlconn->connect_error) {
 }
 // echo "Koneksi MySQL berhasil<br>";
 
+// === Koneksi ke MySQL ===
+$mysqlservernameM = "10.63.0.3";
+$mysqlusernameM   = "aicc-db";
+$mysqlpasswordM   = "31041CcP@ssw0rd#";
+$mysqldbnameM     = "aicc-master";
+
+$mysqlconnM = new mysqli($mysqlservernameM, $mysqlusernameM, $mysqlpasswordM, $mysqldbnameM);
+
+if ($mysqlconnM->connect_error) {
+     die("Koneksi MySQL gagal: " . $mysqlconnM->connect_error);
+}
+
 
 // === Koneksi ke SQL Server ===
-$serverName = "GPG0217\SQLEXPRESS,1433";
-$connectionOptions = array(
-     "Database" => "fg",
-     "Uid"      => "sa",
-     "PWD"      => "C0mbr0P3d45!",
-     "encrypt"  => false,
-     "TrustServerCertificate" => true
-);
+// $serverName = "GPG0217\SQLEXPRESS,1433";
+// $connectionOptions = array(
+//      "Database" => "fg",
+//      "Uid"      => "sa",
+//      "PWD"      => "C0mbr0P3d45!",
+//      "encrypt"  => false,
+//      "TrustServerCertificate" => true
+// );
 
-$conn = sqlsrv_connect($serverName, $connectionOptions);
+// $conn = sqlsrv_connect($serverName, $connectionOptions);
 
-if (!$conn) {
-     die("Koneksi SQL Server gagal:" . print_r(sqlsrv_errors(), true));
-}
+// if (!$conn) {
+//      die("Koneksi SQL Server gagal:" . print_r(sqlsrv_errors(), true));
+// }
 // echo "Koneksi SQL Server berhasil<br>";
