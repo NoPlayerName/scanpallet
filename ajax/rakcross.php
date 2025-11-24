@@ -3,37 +3,95 @@ $norak = '';
 /* $partno = '42411EW011'; */
 require_once("../koneksi.php");
 
+// if (isset($_POST['nopall'])) {
+// 	$partNo = $_POST['nopall'] ?? null;
+
+
+// 	// 1. Ambil group_rack sesuai product
+// 	$rackQuery = "
+//          SELECT r.*
+//         FROM tb_rack r
+//         JOIN tb_rack_group rg ON r.rack_no LIKE CONCAT(rg.group_rack, '%')
+//         JOIN tb_product p ON p.`group` = rg.`group`
+//         WHERE r.status = 0
+//           AND p.part_no = ?
+//         ORDER BY rg.priority ASC, rg.sort_order ASC
+//         LIMIT 1
+//     ";
+
+// 	// Prepared statement
+// 	$stmt = $mysqlconn->prepare($rackQuery);
+// 	$stmt->bind_param("s", $partNo);
+// 	$stmt->execute();
+// 	$rackResult = $stmt->get_result();
+// 	$rack = $rackResult->fetch_assoc();
+
+// 	// Ambil hasil
+// 	$norak = $rack['rack_no'] ?? '';
+
+// 	if ($norak === '') {
+// 		echo "LR"; // LR = tidak ada rak kosong
+// 	} else {
+// 		echo $norak;
+// 	}
+// }
+
 if (isset($_POST['nopall'])) {
-	$partNo = $_POST['nopall'] ?? null;
+    $partNo = $_POST['nopall'] ?? null;
 
+    // 1. Mulai Transaksi Database
+    $mysqlconn->begin_transaction();
 
-	// 1. Ambil group_rack sesuai product
-	$rackQuery = "
-        SELECT r.*
-        FROM tb_rack r
-        JOIN tb_rack_group rg ON r.rack_no LIKE CONCAT(rg.group_rack, '%')
-        JOIN tb_product p ON p.`group` = rg.`group`
-        WHERE r.status = 0
-          AND p.part_no = ?
-        ORDER BY rg.priority ASC, RAND()
-        LIMIT 1
-    ";
+    try {
+        // 2. Query Mencari Rak Kosong dengan LOCK
+        $rackQuery = "
+            SELECT r.*
+            FROM tb_rack r
+            JOIN tb_rack_group rg ON r.rack_no LIKE CONCAT(rg.group_rack, '%')
+            JOIN tb_product p ON p.`group` = rg.`group`
+            WHERE r.status = 0
+              AND p.part_no = ?
+            ORDER BY rg.priority ASC, rg.sort_order ASC
+            LIMIT 1
+            FOR UPDATE 
+        "; // <--- Tambahkan FOR UPDATE di sini
 
-	// Prepared statement
-	$stmt = $mysqlconn->prepare($rackQuery);
-	$stmt->bind_param("s", $partNo);
-	$stmt->execute();
-	$rackResult = $stmt->get_result();
-	$rack = $rackResult->fetch_assoc();
+        $stmt = $mysqlconn->prepare($rackQuery);
+        $stmt->bind_param("s", $partNo);
+        $stmt->execute();
+        $rackResult = $stmt->get_result();
+        $rack = $rackResult->fetch_assoc();
 
-	// Ambil hasil
-	$norak = $rack['rack_no'] ?? '';
+        $norak = $rack['rack_no'] ?? '';
 
-	if ($norak === '') {
-		echo "LR"; // LR = tidak ada rak kosong
-	} else {
-		echo $norak;
-	}
+        if ($norak !== '') {
+            // 3. WAJIB UPDATE STATUS DI SINI
+            // Jika kita sudah dapat raknya, kita harus tandai sebagai 'Terisi' (misal status = 1)
+            // sebelum transaksi di-commit. Agar user lain tidak mengambil rak ini.
+            
+            // Asumsi: Kolom ID rak adalah 'id_rack' atau 'id'. Sesuaikan dengan tabel Anda.
+            // Asumsi: Status 1 artinya 'Terisi'.
+            $updateQuery = "UPDATE tb_rack SET status = 1 WHERE rack_no = ?";
+            $stmtUpdate = $mysqlconn->prepare($updateQuery);
+            $stmtUpdate->bind_param("s", $norak);
+            $stmtUpdate->execute();
+
+            // Simpan perubahan (Update status & Lepas Lock)
+            $mysqlconn->commit();
+            
+            echo $norak;
+        } else {
+            // Rak penuh, tidak ada yang perlu diupdate, tapi transaksi harus ditutup
+            $mysqlconn->commit();
+            echo "LR"; // LR = Logic Rak / Low Rack
+        }
+
+    } catch (Exception $e) {
+        // Jika terjadi error di tengah jalan, batalkan semua
+        $mysqlconn->rollback();
+        // Opsional: echo "Error: " . $e->getMessage();
+        echo "LR"; // Fallback aman
+    }
 }
 
 
@@ -70,13 +128,13 @@ if (isset($_POST['nopallco'])) {
 	} else if ($partno == 'MC075509') {
 
 		$rackQuery = "
-        SELECT r.*
+       SELECT r.*
         FROM tb_rack r
         JOIN tb_rack_group rg ON r.rack_no LIKE CONCAT(rg.group_rack, '%')
         JOIN tb_product p ON p.`group` = rg.`group`
         WHERE r.status = 0
           AND p.part_no = ?
-        ORDER BY rg.priority ASC, RAND()
+        ORDER BY rg.priority ASC, rg.sort_order ASC
         LIMIT 1
     	";
 
@@ -103,13 +161,13 @@ if (isset($_POST['nopallco'])) {
 	} else {
 		$norak = '';
 		$rackQuery = "
-        SELECT r.*
+       SELECT r.*
         FROM tb_rack r
         JOIN tb_rack_group rg ON r.rack_no LIKE CONCAT(rg.group_rack, '%')
         JOIN tb_product p ON p.`group` = rg.`group`
         WHERE r.status = 0
           AND p.part_no = ?
-        ORDER BY rg.priority ASC, RAND()
+        ORDER BY rg.priority ASC, rg.sort_order ASC
         LIMIT 1
    		 ";
 
