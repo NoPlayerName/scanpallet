@@ -298,6 +298,15 @@ if (isset($_POST['part'])) {
 		echo $msgs;
 		/* echo "<br \>"; */
 	} else if ($rowcount !== 0 && $partnoa !== "MC075508") {
+		// $rackCheck = "SELECT rack_no, `status` FROM tb_rack WHERE rack_no='$norak' AND `status`= 1";
+		// $resultRack = $mysqlconn->query($rackCheck);
+		// $rowsRack = mysqli_num_rows($resultRack);
+
+		// if ($rowsRack > 0) {
+		// 	$msgs = "<h3 style='color:red;'>Cek kembali rack, rack sudah terisi!</h3>";
+		// echo $msgs;
+		// }else{
+
 		$querya = "INSERT INTO tb_stock_in (part_no, part_name, pallet_no, qty, rack_no, `status`, created_at)
 				SELECT '$partno2', '$partname2', '$nopall', '$snp2', '$norak', 1, NOW()
 				FROM DUAL
@@ -316,6 +325,7 @@ if (isset($_POST['part'])) {
 		$mysqlconn->query($mysql);
 		$msgs = "<h3 style='color:blue;'>Data Berhasil Di Simpan</h3>";
 		echo $msgs;
+		// }
 	}
 }
 
